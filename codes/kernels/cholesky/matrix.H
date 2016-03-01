@@ -36,7 +36,6 @@ typedef struct {
 	long length; /* number of full rows in block */
 	long parent; /* block number of parent block */
 	double checksum;
-	volatile unsigned long done;
 	long *structure, *relative;
 	double *nz;
 	struct Pair *pair;
@@ -226,9 +225,9 @@ void InitOneFreeList(long p);
 void MallocStats(void);
 long FindBucket(long size);
 char *MyMalloc(long size, long home);
-void MigrateMem(long *start, long length, long home);
-void MyFree(long *block);
-void MyFreeNow(long *block);
+void MigrateMem(void *start, long length, long home);
+void MyFree(void *block);
+void MyFreeNow(void *block);
 
 /*
  * mf.C

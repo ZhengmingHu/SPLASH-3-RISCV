@@ -161,8 +161,9 @@ nodeptr loadtree(bodyptr p, cellptr root, long ProcessId)
    long i, j, root_level;
    bool valid_root;
    long kidIndex;
-   volatile nodeptr *volatile qptr, mynode;
+	nodeptr *qptr, mynode;
    leafptr le;
+	nodeptr parent;
 
    intcoord(xp, Pos(p));
    valid_root = TRUE;
@@ -212,7 +213,6 @@ nodeptr loadtree(bodyptr p, cellptr root, long ProcessId)
       if (l == 0) {
 	 error("not enough levels in tree\n");
       }
-      if (*qptr == NULL) {
 	 /* lock the parent cell */
 	 ALOCK(CellLock->CL, ((cellptr) mynode)->seqnum % MAXLOCK);
 	 if (*qptr == NULL) {
@@ -224,19 +224,20 @@ nodeptr loadtree(bodyptr p, cellptr root, long ProcessId)
 	    Bodyp(le)[le->num_bodies++] = p;
 	    *qptr = (nodeptr) le;
 	    flag = FALSE;
+			parent = Parent((leafptr) *qptr);
 	 }
 	 AULOCK(CellLock->CL, ((cellptr) mynode)->seqnum % MAXLOCK);
 	 /* unlock the parent cell */
-      }
-      if (flag && *qptr && (Type(*qptr) == LEAF)) {
+		if (flag) {
 	 /*   reached a "leaf"?      */
 	 ALOCK(CellLock->CL, ((cellptr) mynode)->seqnum % MAXLOCK);
 	 /* lock the parent cell */
-	 if (Type(*qptr) == LEAF) {             /* still a "leaf"?      */
+			if (*qptr && Type(*qptr) == LEAF) {             /* still a "leaf"?      */
 	    le = (leafptr) *qptr;
 	    if (le->num_bodies == MAX_BODIES_PER_LEAF) {
-	       *qptr = (nodeptr) SubdivideLeaf(le, (cellptr) mynode, l,
-						  ProcessId);
+					nodeptr n = (nodeptr) SubdivideLeaf(le, (cellptr) mynode, l, ProcessId);
+					RELEASE_FENCE();
+					*qptr = n;
 	    }
 	    else {
 	       Parent(p) = (nodeptr) le;
@@ -244,6 +245,7 @@ nodeptr loadtree(bodyptr p, cellptr root, long ProcessId)
 	       ChildNum(p) = le->num_bodies;
 	       Bodyp(le)[le->num_bodies++] = p;
 	       flag = FALSE;
+					parent = Parent((leafptr) *qptr);
 	    }
 	 }
 	 AULOCK(CellLock->CL, ((cellptr) mynode)->seqnum % MAXLOCK);
@@ -257,7 +259,7 @@ nodeptr loadtree(bodyptr p, cellptr root, long ProcessId)
       }
    }
    SETV(Local[ProcessId].Root_Coords, xp);
-   return Parent((leafptr) *qptr);
+	return parent;
 }
 
 
@@ -363,7 +365,10 @@ void hackcofm(long ProcessId)
 	 ADDM(Quad(l), Quad(l), tmpm);
       }
 #endif
+		ALOCK(CellLock->CL, ((cellptr) l)->seqnum % MAXLOCK);
       Done(l)=TRUE;
+		CONDVARBCAST(Done_cv(l));
+		AULOCK(CellLock->CL, ((cellptr) l)->seqnum % MAXLOCK);
    }
    for (cc = Local[ProcessId].mycelltab+Local[ProcessId].myncell-1;
 	cc >= Local[ProcessId].mycelltab; cc--) {
@@ -374,14 +379,18 @@ void hackcofm(long ProcessId)
       for (i = 0; i < NSUB; i++) {
 	 r = Subp(q)[i];
 	 if (r != NULL) {
-	    while(!Done(r)) {
+				ALOCK(CellLock->CL, ((cellptr) r)->seqnum % MAXLOCK);
+				while(!Done(r))
+					CONDVARWAIT(Done_cv(r), CellLock->CL[((cellptr) r)->seqnum % MAXLOCK]);
+				AULOCK(CellLock->CL, ((cellptr) r)->seqnum % MAXLOCK);
 	       /* wait */
-	    }
 	    Mass(q) += Mass(r);
 	    Cost(q) += Cost(r);
 	    MULVS(tmpv, Pos(r), Mass(r));
 	    ADDV(Pos(q), Pos(q), tmpv);
+				ALOCK(CellLock->CL, ((cellptr) r)->seqnum % MAXLOCK);
 	    Done(r) = FALSE;
+				AULOCK(CellLock->CL, ((cellptr) r)->seqnum % MAXLOCK);
 	 }
       }
       DIVVS(Pos(q), Pos(q), Mass(q));
@@ -403,7 +412,10 @@ void hackcofm(long ProcessId)
 	 }
       }
 #endif
+		ALOCK(CellLock->CL, ((cellptr) q)->seqnum % MAXLOCK);
       Done(q)=TRUE;
+		CONDVARBCAST(Done_cv(q));
+		AULOCK(CellLock->CL, ((cellptr) q)->seqnum % MAXLOCK);
    }
 }
 

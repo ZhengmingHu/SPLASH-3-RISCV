@@ -64,9 +64,9 @@ void process_tasks(long process_id)
 {
     Task *t ;
 
+retry_entry:
     t = DEQUEUE_TASK( taskqueue_id[process_id], QUEUES_VISITED, process_id ) ;
 
- retry_entry:
     while( t )
         {
             switch( t->task_type )
@@ -112,32 +112,38 @@ void process_tasks(long process_id)
 
     /* Increment the counter */
     global->pbar_count++ ;
-    UNLOCK(global->pbar_lock);
 
     /* barrier spin-wait loop */
-    while( global->pbar_count < n_processors )
+    long bar_done = !(global->pbar_count < n_processors);
+    UNLOCK(global->pbar_lock);
+    while(!bar_done)
         {
             /* Wait for a while and then retry dequeue */
             if( _process_task_wait_loop() )
                 break ;
 
             /* Waited for a while but other processors are still running.
-               Poll the task queue again */
-            t = DEQUEUE_TASK( taskqueue_id[process_id], QUEUES_VISITED, process_id ) ;
-            if( t )
-                {
-                    /* Task found. Exit the barrier and work on it */
+           Poll the task queue again
+           If polling succeeds (without actually getting a task) then we exit
+           the barrier and try to get a task. This fixes the bug where all the
+           threads might finish the barrier but in the meantime one reenters it
+           to process some tasks.
+           */
+        int has_task = peek_dequeue( taskqueue_id[process_id], QUEUES_VISITED, process_id );
+        if (has_task) {
                     LOCK(global->pbar_lock);
                     global->pbar_count-- ;
                     UNLOCK(global->pbar_lock);
                     goto retry_entry ;
                 }
 
+        LOCK(global->pbar_lock);
+        bar_done = !(global->pbar_count < n_processors);
+        UNLOCK(global->pbar_lock);
         }
 
     BARRIER(global->barrier, n_processors);
 }
-
 
 long _process_task_wait_loop()
 {
@@ -147,9 +153,12 @@ long _process_task_wait_loop()
     /* Wait for a while and then retry */
     for( i = 0 ; i < 1000 && ! finished ; i++ )
         {
-            if(    ((i & 0xff) == 0) && ((volatile long)global->pbar_count >= n_processors) )
-
+        if (((i & 0xff) == 0)) {
+			LOCK(global->pbar_lock);
+            if(global->pbar_count >= n_processors)
                 finished = 1 ;
+			UNLOCK(global->pbar_lock);
+        }
         }
 
     return( finished ) ;
@@ -193,7 +202,7 @@ void create_ff_refine_task(Element *e1, Element *e2, long level, long process_id
     Task *t ;
 
     /* Check existing parallelism */
-    if( taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ]) )
+    if( taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ], n_tasks_per_queue) )
         {
             /* Task queue is too long. Solve it immediately */
             ff_refine_elements( e1, e2, level, process_id ) ;
@@ -219,7 +228,7 @@ void create_ray_task(Element *e, long process_id)
     /* Check existing parallelism */
     if(   ((e->n_interactions + e->n_vis_undef_inter)
            < N_inter_parallel_bf_refine)
-       || taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ]) )
+       || taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ], n_tasks_per_queue) )
         {
             /* Task size is small, or the queue is too long.
                Solve it immediately */
@@ -257,9 +266,10 @@ void create_visibility_tasks(Element *e, void (*k)(), long process_id)
     long tasks_created = 0 ;
 
     /* Check number of hard problems */
-    for( top = e->vis_undef_inter ; top ; top = top->next )
+    for( top = e->vis_undef_inter ; top ; top = top->next ) {
         if( top->visibility == VISIBILITY_UNDEF )
             total_undefs++ ;
+	}
 
     if( total_undefs == 0 )
         {
@@ -271,7 +281,7 @@ void create_visibility_tasks(Element *e, void (*k)(), long process_id)
 
     /* Check existing parallelism */
     if(   (total_undefs < N_visibility_per_task)
-       || taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ]) )
+       || taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ], n_tasks_per_queue) )
         {
             /* Task size is small, or the queue is too long.
                Solve it immediately. */
@@ -297,7 +307,8 @@ void create_visibility_tasks(Element *e, void (*k)(), long process_id)
         {
             i_cnt++ ;
 
-            if( tail->visibility != VISIBILITY_UNDEF )
+			int _c = tail->visibility != VISIBILITY_UNDEF;
+            if(_c)
                 continue ;
 
             remainder += n_tasks ;
@@ -338,7 +349,7 @@ void create_radavg_task(Element *e, long mode, long process_id)
 {
     /* Check existing parallelism */
     if(   (e->n_interactions < N_inter_parallel_bf_refine)
-       || taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ]) )
+       || taskq_too_long(&global->task_queue[ taskqueue_id[process_id] ], n_tasks_per_queue) )
         {
             /* Task size is too small or queue is too long.
                Solve it immediately */
@@ -371,6 +382,7 @@ void enqueue_radavg_task(long qid, Element *e, long mode, long process_id)
  *
  *    enqueue_task()
  *    dequeue_task()
+ *    peek_queue()
  *
  ****************************************************************************/
 
@@ -442,11 +454,10 @@ Task *dequeue_task(long qid, long max_visit, long process_id)
             /* Select a task queue */
             tq = &global->task_queue[ qid ] ;
 
-            /* Check the length (test-test&set) */
-            if( tq->n_tasks > 0 )
-                {
                     /* Lock the task queue */
                     LOCK(tq->q_lock);
+		if( tq->n_tasks > 0)
+		{
                     if( tq->top )
                         {
                             if( qid == taskqueue_id[process_id] )
@@ -475,6 +486,8 @@ Task *dequeue_task(long qid, long max_visit, long process_id)
                     UNLOCK(tq->q_lock);
                     break ;
                 }
+		/* Unlock the task queue */
+		UNLOCK(tq->q_lock);
 
             /* Update visit count */
             visit_count++ ;
@@ -491,6 +504,61 @@ Task *dequeue_task(long qid, long max_visit, long process_id)
         }
 
     return( t ) ;
+}
+
+int peek_dequeue(long qid, long max_visit, long process_id)
+  /*
+   * Checks if a call to dequeue_task would be successful. This of course might
+   * change until the actual call to dequeue.
+   */
+{
+    Task_Queue *tq ;
+	int task_found = 0;
+    Task *prev ;
+    long visit_count = 0 ;
+    long sign = -1 ;		      /* The first retry will go backward */
+    long offset ;
+
+    /* Check number of queues to be visited */
+    if( max_visit > n_taskqueues )
+        max_visit = n_taskqueues ;
+
+    /* Get next task */
+    while( visit_count < max_visit )
+    {
+        /* Select a task queue */
+        tq = &global->task_queue[ qid ] ;
+
+        /* Lock the task queue */
+        LOCK(tq->q_lock);
+		if( tq->n_tasks > 0)
+		{
+			if ( tq->top )
+			{
+				task_found = 1;
+			}
+			/* Unlock the task queue */
+			UNLOCK(tq->q_lock);
+			break ;
+		}
+		/* Unlock the task queue */
+		UNLOCK(tq->q_lock);
+
+        /* Update visit count */
+        visit_count++ ;
+
+        /* Compute next taskqueue ID */
+        offset = (sign > 0)? visit_count : -visit_count ;
+        sign = -sign ;
+
+        qid += offset ;
+        if( qid < 0 )
+            qid += n_taskqueues ;
+        else if( qid >= n_taskqueues )
+            qid -= n_taskqueues ;
+    }
+
+    return( task_found ) ;
 }
 
 
@@ -520,8 +588,6 @@ Task *get_task(long process_id)
                 {
                     tq = &global->task_queue[ q_id ] ;
 
-                    if( tq->n_free > 0 )
-                        {
                             LOCK(tq->f_lock);
                             if( tq->free )
                                 {
@@ -539,7 +605,6 @@ Task *get_task(long process_id)
                                     break ;
                                 }
                             UNLOCK(tq->f_lock);
-                        }
 
                     /* Try next task queue */
                     if( ++q_id >= n_taskqueues )

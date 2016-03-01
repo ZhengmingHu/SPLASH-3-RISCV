@@ -27,6 +27,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/times.h>
+#include <unistd.h>
 
 #define error(msg, ...)	printf(msg, ##__VA_ARGS__);
 /*

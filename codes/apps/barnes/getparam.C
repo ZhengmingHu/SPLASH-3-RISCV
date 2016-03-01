@@ -49,8 +49,10 @@ string getparam(string name)
    if (i < 0)
       error("getparam: %s unknown\n", name);
    def = extrvalue(defaults[i]);
-   gets(buf);
+   fgets(buf, 128, stdin);
    leng = strlen(buf) + 1;
+   buf[leng-1] = '\0';
+   leng--;
    if (leng > 1) {
       return (strcpy(malloc(leng), buf));
    }

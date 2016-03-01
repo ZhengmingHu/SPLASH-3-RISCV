@@ -25,13 +25,13 @@ EXTERN_ENV
 #define MAXFAST 16
 #define MAXFASTBL (1<<(MAXFAST-1))
 
-#define SIZE(block) (block[-1]) /* in all blocks */
-#define HOME(block) (block[-2]) /* in all blocks */
+#define SIZE(block) (((long *)block)[-1]) /* in all blocks */
+#define HOME(block) (((long *)block)[-2]) /* in all blocks */
 #define NEXTFREE(block) (*((long **) block)) /* in free blocks */
 
 struct MemPool {
 	LOCKDEC(memoryLock)
-	long *volatile*freeBlock;
+	long **freeBlock;
 	long tally, touched, maxm;
 	} *mem_pool;
 
@@ -134,13 +134,11 @@ char *MyMalloc(long size, long home)
   result = NULL;
 
   if (bucket < MAXFAST) {
-    if (mem_pool[home].freeBlock[bucket]) {
       LOCK(mem_pool[home].memoryLock)
       result = mem_pool[home].freeBlock[bucket];
       if (result)
 	mem_pool[home].freeBlock[bucket] = NEXTFREE(result);
       UNLOCK(mem_pool[home].memoryLock)
-    }
   }
 
   if (!result) {
@@ -193,6 +191,7 @@ char *MyMalloc(long size, long home)
     /* grab a big block, free it, then retry request */
     block_size = max(alloc_size, 4*(1<<MAXFAST));
     LOCK(Global->memLock);
+	//XXX WARNING: Violation of the strict aliasing rule
     freespace = (long *) G_MALLOC(block_size+2*sizeof(long), home);
     MigrateMem(freespace, block_size+2*sizeof(long), home);
 
@@ -228,7 +227,7 @@ char *MyMalloc(long size, long home)
 }
 
 
-void MigrateMem(long *start, long length, long home)
+void MigrateMem(void *start, long length, long home)
 {
 /*  unsigned long *finish;
   unsigned long currpage, endpage;
@@ -262,7 +261,7 @@ void MigrateMem(long *start, long length, long home)
 }
     
 
-void MyFree(long *block)
+void MyFree(void *block)
 {
   long home;
 
@@ -273,7 +272,7 @@ void MyFree(long *block)
 }
 
 
-void MyFreeNow(long *block)
+void MyFreeNow(void *block)
 {
   long bucket, size, home;
 

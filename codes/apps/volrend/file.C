@@ -16,6 +16,7 @@
 
 /********** storing/loading of large arrays to/from files **********/
 
+#include <unistd.h>
 #include <fcntl.h>
 #include "incl.h"
 

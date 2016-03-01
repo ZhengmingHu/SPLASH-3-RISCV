@@ -716,15 +716,15 @@ void compute_visibility_values(Element *elem, Interaction *inter, long n_inter, 
 {
     for( ; n_inter > 0 ; inter = inter->next, n_inter-- )
         {
-            if( inter->visibility != VISIBILITY_UNDEF )
+            if(inter->visibility != VISIBILITY_UNDEF ) {
                 continue ;
+			}
 
             vis_struct[process_id].bsp_nodes_visited = 0 ;
 
-            inter->visibility
-                = visibility( elem, inter->destination,
+			float v = visibility( elem, inter->destination,
                              N_VISIBILITY_TEST_RAYS, process_id ) ;
-
+            inter->visibility = v;
             vis_struct[process_id].total_bsp_nodes_visited += vis_struct[process_id].bsp_nodes_visited ;
         }
 }

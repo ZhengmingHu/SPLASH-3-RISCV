@@ -27,6 +27,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "decs.h"
 
 MAIN_ENV

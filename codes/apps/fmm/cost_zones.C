@@ -67,12 +67,15 @@ void
 ComputeSubTreeCosts (long my_id, box *b)
 {
    box *pb;
+   long is;
 
+   ALOCK(G_Memory->lock_array, b->exp_lock_index);
    if (b->type == PARENT) {
-      while (b->interaction_synch != b->num_children) {
-      }
+	   while(b->interaction_synch != b->num_children)
+		   CONDVARWAIT(b->interaction_synch_cv, AGETL(G_Memory->lock_array, b->exp_lock_index));
    }
    b->interaction_synch = 0;
+   AULOCK(G_Memory->lock_array, b->exp_lock_index);
    ComputeCostOfBox(b);
    b->subtree_cost += b->cost;
    pb = b->parent;
@@ -80,6 +83,7 @@ ComputeSubTreeCosts (long my_id, box *b)
       ALOCK(G_Memory->lock_array, pb->exp_lock_index);
       pb->subtree_cost += b->subtree_cost;
       pb->interaction_synch += 1;
+      CONDVARBCAST(pb->interaction_synch_cv);
       AULOCK(G_Memory->lock_array, pb->exp_lock_index);
    }
 }

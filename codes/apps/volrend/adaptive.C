@@ -91,10 +91,7 @@ void Ray_Trace(long my_node)
     CLOCK(starttime);
     Pre_Shade(my_node);
 
-    LOCK(Global->CountLock);
-    Global->Counter--;
-    UNLOCK(Global->CountLock);
-    while (Global->Counter);
+    BARRIER(Global->TimeBarrier,num_nodes);
 
     Ray_Trace_Adaptively(my_node);
 
@@ -132,10 +129,8 @@ void Ray_Trace(long my_node)
 
     Pre_Shade(my_node);
 
-    LOCK(Global->CountLock);
-    Global->Counter--;
-    UNLOCK(Global->CountLock);
-    while (Global->Counter);
+    Global->Queue[my_node][0] = 0;
+    BARRIER(Global->TimeBarrier,num_nodes);
 
     Ray_Trace_Non_Adaptively(my_node);
 
@@ -226,7 +221,7 @@ void Ray_Trace_Adaptive_Box(long outx, long outy, long boxlen)
   long half_boxlen;
   long min_volume_color,max_volume_color;
   float foutx,fouty;
-  volatile long imask;
+  long imask;
 
   PIXEL *pixel_address;
 
@@ -341,8 +336,9 @@ void Ray_Trace_Non_Adaptively(long my_node)
   lnum_yblocks = ROUNDUP((float)num_yqueue/(float)block_ylen);
   lnum_blocks = lnum_xblocks * lnum_yblocks;
   local_node = my_node;
-  Global->Queue[local_node][0] = 0;
+  ALOCK(Global->QLock, num_nodes);
   while (Global->Queue[num_nodes][0] > 0) {
+    AULOCK(Global->QLock,num_nodes);
     xstart = (local_node % image_section[X]) * num_xqueue;
     xstop = MIN(xstart+num_xqueue,image_len[X]);
     ystart = (local_node / image_section[X]) * num_yqueue;
@@ -374,10 +370,19 @@ void Ray_Trace_Non_Adaptively(long my_node)
       AULOCK(Global->QLock,num_nodes);
     }
     local_node = (local_node+1)%num_nodes;
+    ALOCK(Global->QLock,num_nodes);
+    ALOCK(Global->QLock,local_node);
     while (Global->Queue[local_node][0] >= lnum_blocks &&
-	   Global->Queue[num_nodes][0] > 0)
+	   Global->Queue[num_nodes][0] > 0) {
+      AULOCK(Global->QLock, local_node);
+      AULOCK(Global->QLock, num_nodes);
       local_node = (local_node+1)%num_nodes;
+      ALOCK(Global->QLock,num_nodes);
+      ALOCK(Global->QLock,local_node);
   }
+    AULOCK(Global->QLock, local_node);
+  }
+  AULOCK(Global->QLock,num_nodes);
 }
 
 

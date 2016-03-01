@@ -73,7 +73,7 @@ EXTERN_ENV
 	   space in the sproc lightweight threads model, and (ii) when
 	   there are simple situations of "control" variables that are written
 	   by only one processor but read by several, and declared in a
-	   shared array indexed by process id, e.g. wpstat and workpool
+	   shared array indexed by process id, e.g. workpool
 	   declared in this file */
 
 #define MAX_SUBDIV_LEVEL 3		/* Max HUG subdivision level.	     */
@@ -645,9 +645,6 @@ typedef struct	gmem
 	OBJECT	*modelroot;		/* Root of model list.		     */
 	GRID	*world_level_grid;	/* Zero level grid pointer.	     */
 	NODE	huge *freelist; 	/* Ptr to global free memory heap.   */
-	INT	wpstat[MAX_PROCS][INT_PAD_SIZE]; /* Shared work pool
-					   status hints.  Padded to avoid
-					   false-sharing */
 	WPJOB	*workpool[MAX_PROCS][INT_PAD_SIZE]; /* Ptr to heads of
 					   shared work pools.  Padded to
 					   avoid false-sharing */

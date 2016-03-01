@@ -17,6 +17,7 @@
 #ifndef _Memory_H
 #define _Memory_H 1
 
+#include <pthread.h>
 #include "defs.h"
 #include "particle.h"
 #include "box.h"
@@ -36,8 +37,6 @@ struct _G_Mem
    long count;
    ALOCKDEC(lock_array, MAX_LOCKS)
    BARDEC(synch)
-   volatile long *i_array;
-   volatile double *d_array;
    real f_array[MAX_PROCS][NUM_DIM_POW_2];
    real max_x;
    real min_x;

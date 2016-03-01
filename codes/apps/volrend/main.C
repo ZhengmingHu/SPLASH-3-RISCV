@@ -291,7 +291,6 @@ void Render_Loop()
 
       BARRIER(Global->SlaveBarrier,num_nodes);
 
-      Global->Counter = num_nodes;
       Global->Queue[num_nodes][0] = num_nodes;
       Global->Queue[my_node][0] = 0;
 

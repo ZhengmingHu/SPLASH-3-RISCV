@@ -182,7 +182,6 @@ void CreateBlockedMatrix2(SMatrix M, long block_ub, long *T, long *firstchild, l
 	  printf("Block %ld has bad structure\n", which);
 	  exit(-1);
 	}
-	BLOCK(i)->done = 0;
 	BLOCK(i)->pair = NULL;
 	which++;
       }
@@ -196,7 +195,6 @@ void CreateBlockedMatrix2(SMatrix M, long block_ub, long *T, long *firstchild, l
         BLOCK(i)->j = LB.n+j;
 	BLOCK(i)->nz = NULL;
 	BLOCK(i)->owner = p;
-	BLOCK(i)->done = 0;
 	BLOCK(i)->pair = NULL;
 	which++;
       }

@@ -96,7 +96,9 @@ ZeroBox (long my_id, box *b)
    }
    b->num_children = 0;
    b->construct_synch = 0;
+   CONDVARINIT(b->construct_synch_cv);
    b->interaction_synch = 0;
+   CONDVARINIT(b->interaction_synch_cv);
    b->cost = 0;
    b->proc = my_id;
    b->subtree_cost = 0;
@@ -153,7 +155,7 @@ InitBox (long my_id, real x_center, real y_center, real length, box *parent)
  *
  */
 void
-PrintBox (box *b)
+PrintBox (long id, box *b)
 {
    LOCK(G_Memory->io_lock);
    fflush(stdout);

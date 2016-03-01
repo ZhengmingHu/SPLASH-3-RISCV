@@ -25,11 +25,12 @@ extern struct GlobalMemory *Global;
 struct Update **updateHash;
 
 struct taskQ {
-	LOCKDEC(taskLock)
-	struct Task *volatile taskQ; 
-	struct Task *volatile taskQlast;
-	struct Task *volatile probeQ; 
-	struct Task *volatile probeQlast;
+	LOCKDEC(taskLock);
+	CONDVARDEC(haveTask);
+	struct Task *taskQ;
+	struct Task *taskQlast;
+	struct Task *probeQ;
+	struct Task *probeQlast;
 	} *tasks;
 
 extern BMatrix LB;
@@ -41,6 +42,7 @@ void InitTaskQueues(long P)
   tasks = (struct taskQ *) MyMalloc(P*sizeof(struct taskQ), DISTRIBUTED);
   for (i=0; i<P; i++) {
     LOCKINIT(tasks[i].taskLock)
+	CONDVARINIT(tasks[i].haveTask);
 
     tasks[i].taskQ = (struct Task *) NULL;
     tasks[i].taskQlast = (struct Task *) NULL;
@@ -116,6 +118,7 @@ void Send(long src_block, long dest_block, long desti, long destj, struct Update
     tasks[procnum].taskQlast = t;
   }
 
+  CONDVARSIGNAL(tasks[procnum].haveTask);
   UNLOCK(tasks[procnum].taskLock)
 }
 
@@ -132,9 +135,10 @@ void GetBlock(long *desti, long *destj, long *src, struct Update **update, long 
 
   for (;;) {
 
-    if (tasks[MyNum].taskQ || tasks[MyNum].probeQ) {
-      LOCK(tasks[MyNum].taskLock)
       t = NULL;
+    LOCK(tasks[MyNum].taskLock);
+	while(!tasks[MyNum].probeQ && !tasks[MyNum].taskQ)
+		CONDVARWAIT(tasks[MyNum].haveTask, tasks[MyNum].taskLock);
       if (tasks[MyNum].probeQ) {
         t = (struct Task *) tasks[MyNum].probeQ;
         tasks[MyNum].probeQ = t->next;
@@ -147,13 +151,9 @@ void GetBlock(long *desti, long *destj, long *src, struct Update **update, long 
 	if (!t->next)
 	  tasks[MyNum].taskQlast = NULL;
       }
-      UNLOCK(tasks[MyNum].taskLock)
-      if (t)
+    UNLOCK(tasks[MyNum].taskLock);
+    if (t) {
         break;
-    }
-    else {
-    while (!tasks[MyNum].taskQ && !tasks[MyNum].probeQ)
-      ;
     }
   }
 

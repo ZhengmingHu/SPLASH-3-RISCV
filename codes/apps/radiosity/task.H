@@ -140,7 +140,12 @@ typedef struct {
 
 #define taskq_length(q)   (q->n_tasks)
 #define taskq_top(q)      (q->top)
-#define taskq_too_long(q)  ((q)->n_tasks > n_tasks_per_queue)
+static inline int taskq_too_long(Task_Queue * q, long n_tasks_per_queue) {
+	LOCK(q->q_lock);
+    long too_long = q->n_tasks > n_tasks_per_queue;
+	UNLOCK(q->q_lock);
+    return too_long;
+}
 
 /*
  * taskman.C
@@ -157,6 +162,7 @@ void create_radavg_task(Element *e, long mode, long process_id);
 void enqueue_radavg_task(long qid, Element *e, long mode, long process_id);
 void enqueue_task(long qid, Task *task, long mode);
 Task *dequeue_task(long qid, long max_visit, long process_id);
+int peek_dequeue(long qid, long max_visit, long process_id);
 Task *get_task(long process_id);
 void free_task(Task *task, long process_id);
 void init_taskq(long process_id);

@@ -34,6 +34,7 @@
 MAIN_ENV
 
 #include <math.h>
+#include <unistd.h>
 #include "matrix.h"
 
 #define SH_MEM_AMT   100000000

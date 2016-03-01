@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <unistd.h>
 MAIN_ENV
 
 #define MAXRAND					32767.0

@@ -60,6 +60,7 @@ MAIN_ENV
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "decs.h"
 
 struct multi_struct *multi;

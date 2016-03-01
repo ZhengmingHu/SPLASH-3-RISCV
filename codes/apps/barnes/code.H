@@ -82,7 +82,6 @@ struct GlobalMemory  {	/* all this info is for the whole system */
     unsigned long treebuildstart, treebuildend, treebuildtime;
     unsigned long forcecalcstart, forcecalcend, forcecalctime;
     long current_id;
-    volatile long k; /*for memory allocation in code.C */
 };
 global struct GlobalMemory *Global;
 

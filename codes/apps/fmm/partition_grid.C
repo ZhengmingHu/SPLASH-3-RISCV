@@ -105,7 +105,10 @@ InsertBoxInPartition (long my_id, box *b)
 {
    box *level_list;
 
-   if (b->type == CHILDLESS) {
+   ALOCK(G_Memory->lock_array, b->particle_lock_index);
+   box_type b_type = b->type;
+   AULOCK(G_Memory->lock_array, b->particle_lock_index);
+   if (b_type == CHILDLESS) {
       b->prev = NULL;
       if (Local[my_id].Childless_Partition != NULL)
 	 Local[my_id].Childless_Partition->prev = b;

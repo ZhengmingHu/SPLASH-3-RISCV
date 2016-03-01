@@ -91,22 +91,26 @@ PrintExpTables ()
 void
 UpwardPass (long my_id, box *b)
 {
+   long is;
    InitExp(b);
    if (b->type == CHILDLESS) {
       ComputeMPExp(b);
       ALOCK(G_Memory->lock_array, b->exp_lock_index);
       b->interaction_synch = 1;
+      CONDVARBCAST(b->interaction_synch_cv);
       AULOCK(G_Memory->lock_array, b->exp_lock_index);
    }
    else {
-      while (b->interaction_synch != b->num_children) {
-	 /* wait */;
-      }
+     ALOCK(G_Memory->lock_array, b->exp_lock_index);
+	 while(b->interaction_synch != b->num_children)
+		 CONDVARWAIT(b->interaction_synch_cv, AGETL(G_Memory->lock_array, b->exp_lock_index));
+     AULOCK(G_Memory->lock_array, b->exp_lock_index);
    }
    if (b->parent != NULL) {
       ShiftMPExp(b, b->parent);
       ALOCK(G_Memory->lock_array, b->parent->exp_lock_index);
       b->parent->interaction_synch += 1;
+      CONDVARBCAST(b->parent->interaction_synch_cv);
       AULOCK(G_Memory->lock_array, b->parent->exp_lock_index);
    }
 }
@@ -128,19 +132,25 @@ ComputeInteractions (long my_id, box *b)
 void
 DownwardPass (long my_id, box *b)
 {
+   long is;
    if (b->parent != NULL) {
-      while (b->parent->interaction_synch != 0) {
-	 /* wait */;
-      }
+     ALOCK(G_Memory->lock_array, b->parent->exp_lock_index);
+	 while(b->parent->interaction_synch != 0)
+		 CONDVARWAIT(b->parent->interaction_synch_cv, AGETL(G_Memory->lock_array, b->parent->exp_lock_index));
+     AULOCK(G_Memory->lock_array, b->parent->exp_lock_index);
       ShiftLocalExp(b->parent, b);
    }
    if (b->type == CHILDLESS) {
       EvaluateLocalExp(b);
+      ALOCK(G_Memory->lock_array, b->exp_lock_index);
       b->interaction_synch = 0;
+      CONDVARBCAST(b->interaction_synch_cv);
+      AULOCK(G_Memory->lock_array, b->exp_lock_index);
    }
    else {
       ALOCK(G_Memory->lock_array, b->exp_lock_index);
       b->interaction_synch = 0;
+      CONDVARBCAST(b->interaction_synch_cv);
       AULOCK(G_Memory->lock_array, b->exp_lock_index);
    }
 }
@@ -184,6 +194,7 @@ InitExp (box *b)
 {
    long i;
 
+   ALOCK(G_Memory->lock_array, b->exp_lock_index);
    for (i = 0; i < Expansion_Terms; i++) {
       b->mp_expansion[i].r = 0.0;
       b->mp_expansion[i].i = 0.0;
@@ -192,6 +203,7 @@ InitExp (box *b)
       b->x_expansion[i].r = 0.0;
       b->x_expansion[i].i = 0.0;
    }
+   AULOCK(G_Memory->lock_array, b->exp_lock_index);
 }
 
 
@@ -231,7 +243,8 @@ ComputeMPExp (box *b)
       result_exp[i].r = (real) 0.0;
       result_exp[i].i = (real) 0.0;
    }
-   for (i = 0; i < b->num_particles; i++) {
+   long bnp = b->num_particles;
+   for (i = 0; i < bnp; i++) {
       p = b->particles[i];
       particle_pos.r = p->pos.x;
       particle_pos.i = p->pos.y;
@@ -362,16 +375,19 @@ VListInteraction (long my_id, box *source_box, box *dest_box)
    complex temp;
    long i;
    long j;
+   long is;
 
    if (source_box->type == CHILDLESS) {
-      while (source_box->interaction_synch != 1) {
-	 /* wait */;
-      }
+     ALOCK(G_Memory->lock_array, source_box->exp_lock_index);
+	 while(source_box->interaction_synch != 1)
+		 CONDVARWAIT(source_box->interaction_synch_cv, AGETL(G_Memory->lock_array, source_box->exp_lock_index));
+     AULOCK(G_Memory->lock_array, source_box->exp_lock_index);
    }
    else {
-      while (source_box->interaction_synch != source_box->num_children) {
-	 /* wait */;
-      }
+     ALOCK(G_Memory->lock_array, source_box->exp_lock_index);
+	 while(source_box->interaction_synch != source_box->num_children)
+		 CONDVARWAIT(source_box->interaction_synch_cv, AGETL(G_Memory->lock_array, source_box->exp_lock_index));
+     AULOCK(G_Memory->lock_array, source_box->exp_lock_index);
    }
 
    source_pos.r = source_box->x_center;
@@ -441,16 +457,19 @@ WListInteraction (box *source_box, box *dest_box)
    complex particle_pos;
    long i;
    long j;
+   long is;
 
    if (source_box->type == CHILDLESS) {
-      while (source_box->interaction_synch != 1) {
-	 /* wait */;
-      }
+     ALOCK(G_Memory->lock_array, source_box->exp_lock_index);
+	 while(source_box->interaction_synch != 1)
+		 CONDVARWAIT(source_box->interaction_synch_cv, AGETL(G_Memory->lock_array, source_box->exp_lock_index));
+	 AULOCK(G_Memory->lock_array, source_box->exp_lock_index);
    }
    else {
-      while (source_box->interaction_synch != source_box->num_children) {
-	 /* wait */;
-      }
+     ALOCK(G_Memory->lock_array, source_box->exp_lock_index);
+	 while(source_box->interaction_synch != source_box->num_children)
+		 CONDVARWAIT(source_box->interaction_synch_cv, AGETL(G_Memory->lock_array, source_box->exp_lock_index));
+     AULOCK(G_Memory->lock_array, source_box->exp_lock_index);
    }
 
    source_pos.r = source_box->x_center;
@@ -602,9 +621,11 @@ ShiftLocalExp (box *pb, box *cb)
    z0_pow_minus_n.r = One.r;
    z0_pow_minus_n.i = One.i;
    for (i = 0; i < Expansion_Terms; i++) {
+	  ALOCK(G_Memory->lock_array, pb->exp_lock_index);
       COMPLEX_ADD(pb->local_expansion[i], pb->local_expansion[i],
 		  pb->x_expansion[i]);
       COMPLEX_MUL(temp_exp[i], z0_pow_n, pb->local_expansion[i]);
+	  AULOCK(G_Memory->lock_array, pb->exp_lock_index);
       COMPLEX_MUL(z0_pow_n, z0_pow_n, z0);
    }
    for (i = 0; i < Expansion_Terms; i++) {

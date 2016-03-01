@@ -31,7 +31,7 @@ RoundReal (real val)
 {
    double shifter;
    double frac;
-   long exp;
+   int exp;
    double shifted_frac;
    double new_frac;
    double temp;

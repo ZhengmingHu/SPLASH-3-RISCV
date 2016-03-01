@@ -45,6 +45,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 #define PAGE_SIZE               4096
 #define NUM_CACHE_LINES        65536 
 #define LOG2_LINE_SIZE             4

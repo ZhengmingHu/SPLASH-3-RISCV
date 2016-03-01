@@ -444,7 +444,7 @@ BARRIER(bars->sl_prini,nprocs)
    if (procid == nprocs-1) {
      sintemp = pi*((double) jmm1)*res/ysca1;
      sintemp = sin(sintemp);
-     frcng->tauz[im-1][jm-1] = frcng->tauz[0][jm-1];
+     frcng->tauz[im-1][jm-1] = factor*sintemp;
    }
    if (firstrow == 1) {
      for(j=firstcol;j<=lastcol;j++) {

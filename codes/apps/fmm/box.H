@@ -95,8 +95,10 @@ struct _Box
   complex x_expansion[MAX_EXPANSION_TERMS];
   long exp_lock_index;
   long particle_lock_index;
-  volatile long construct_synch;
-  volatile long interaction_synch;
+  long construct_synch;
+  CONDVARDEC(construct_synch_cv);
+  long interaction_synch;
+  CONDVARDEC(interaction_synch_cv);
   long proc;
   long cost;
   long u_cost;
@@ -123,7 +125,7 @@ extern box *Grid;
 extern void CreateBoxes(long my_id, long num_boxes);
 extern void FreeBoxes(long my_id);
 extern box *InitBox(long my_id, real x_center, real y_center, real length, box *parent);
-extern void PrintBox(box *b);
+extern void PrintBox(long, box *b);
 extern void PrintBoxArrayIds(box *b_array[], long array_length);
 extern void PrintExpansionTerms(complex expansion[]);
 

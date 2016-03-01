@@ -37,8 +37,6 @@ void
 InitGlobalMemory ()
 {
    G_Memory = (g_mem *) G_MALLOC(sizeof(g_mem));
-   G_Memory->i_array = (long *) G_MALLOC(Number_Of_Processors * sizeof(long));
-   G_Memory->d_array = (double *) G_MALLOC(Number_Of_Processors * sizeof(double));
    if (G_Memory == NULL) {
       printf("Ran out of global memory in InitGlobalMemory\n");
       exit(-1);

@@ -154,7 +154,6 @@ INT	GetJob(RAYJOB *job, INT pid)
 
 	if (!wpentry)
 		{
-		gm->wpstat[pid][0] = WPS_EMPTY;
 		AULOCK(gm->wplock, pid)
 		return (WPS_EMPTY);
 		}
@@ -200,7 +199,6 @@ INT	GetJobs(RAYJOB *job, INT pid)
 
 	/* First, try to get job from pid's own pool (or pool 0). */
 
-	if (gm->wpstat[i][0] == WPS_VALID)
 		 if (GetJob(job, i) == WPS_VALID)
 			{
 			return (WPS_VALID);
@@ -216,7 +214,6 @@ INT	GetJobs(RAYJOB *job, INT pid)
 
 		while (i != pid)
 			{
-			if (gm->wpstat[i][0] == WPS_VALID)
 				if (GetJob(job, i) == WPS_VALID)
 					{
 					return (WPS_VALID);
@@ -276,7 +273,6 @@ VOID	InitWorkPool(INT pid)
 	INT	xe, ye;
 	INT	xsize, ysize;
 
-	gm->wpstat[pid][0]   = WPS_VALID;
 	gm->workpool[pid][0] = NULL;
 
 	i      = 0;

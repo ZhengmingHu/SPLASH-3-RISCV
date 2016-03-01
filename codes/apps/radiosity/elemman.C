@@ -122,11 +122,7 @@ void ff_refine_elements(Element *e1, Element *e2, long level, long process_id)
     Interaction *inter ;
 
 #if PATCH_ASSIGNMENT == PATCH_ASSIGNMENT_COSTBASED
-#if defined(SUN4)
     Patch_Cost *pc1, *pc2 ;
-#else
-    volatile Patch_Cost *pc1, *pc2 ;
-#endif
     long cost1, cost2 ;
 #endif
 
@@ -458,9 +454,12 @@ long bf_error_analysis(Element *elem, Interaction *inter, long process_id)
     else
         visibility_error = FF_VISIBILITY_ERROR ;
 
+    LOCK(inter->destination->elem_lock->lock);
     rad_avg =( inter->destination->rad.r
               + inter->destination->rad.g
               + inter->destination->rad.b ) * (float)(1.0 / 3.0) ;
+    UNLOCK(inter->destination->elem_lock->lock);
+
 
     total_error = (inter->visibility * inter->formfactor_err
                    + visibility_error * inter->formfactor_out
@@ -786,10 +785,11 @@ static void process_rays3(Element *e, long process_id)
     else
         {
             /* Update element radiosity at the leaf level */
+			LOCK(e->elem_lock->lock);
             e->rad.r = e->rad_in.r + e->rad_subtree.r + e->patch->emittance.r ;
             e->rad.g = e->rad_in.g + e->rad_subtree.g + e->patch->emittance.g ;
             e->rad.b = e->rad_in.b + e->rad_subtree.b + e->patch->emittance.b ;
-
+			UNLOCK(e->elem_lock->lock);
             /* Ship out radiosity to the parent */
             elem_join_operation( e->parent, e, process_id ) ;
         }
@@ -831,11 +831,12 @@ static void elem_join_operation(Element *e, Element *ec, long process_id)
             e->rad_subtree.b += ec->rad_subtree.b * (float)0.25 ;
             e->join_counter-- ;
             join_flag = (e->join_counter == 0) ;
-            UNLOCK(e->elem_lock->lock);
 
-            if( join_flag == 0 )
+            if( join_flag == 0 ) {
                 /* Other children are not finished. Return. */
+				UNLOCK(e->elem_lock->lock);
                 return ;
+			}
 
             /* This is the continuation called by the last (4th) subprocess.
                Perform JOIN at this level */
@@ -843,6 +844,7 @@ static void elem_join_operation(Element *e, Element *ec, long process_id)
             e->rad.r = e->rad_in.r + e->rad_subtree.r + e->patch->emittance.r ;
             e->rad.g = e->rad_in.g + e->rad_subtree.g + e->patch->emittance.g ;
             e->rad.b = e->rad_in.b + e->rad_subtree.b + e->patch->emittance.b ;
+            UNLOCK(e->elem_lock->lock);
 
             /* Traverse the tree one level up and repeat */
             ec = e ;
@@ -912,9 +914,11 @@ static void gather_rays(Element *elem, long process_id)
             /* Be careful !
                Use FF(out) to compute incoming energy */
             ff_v = inter->formfactor_out * inter->visibility ;
+            LOCK(inter->destination->elem_lock->lock);
             bf_r = ff_v * inter->destination->rad.r ;
             bf_g = ff_v * inter->destination->rad.g ;
             bf_b = ff_v * inter->destination->rad.b ;
+            UNLOCK(inter->destination->elem_lock->lock);
 
             rad_elem.r += bf_r ;
             rad_elem.g += bf_g ;

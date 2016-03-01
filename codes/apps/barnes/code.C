@@ -325,6 +325,7 @@ void init_root()
    Global->G_root->seqnum = 0;
    Type(Global->G_root) = CELL;
    Done(Global->G_root) = FALSE;
+	CONDVARINIT(Done_cv(Global->G_root));
    Level(Global->G_root) = IMAX >> 1;
    for (i = 0; i < NSUB; i++) {
       Subp(Global->G_root)[i] = NULL;
@@ -664,7 +665,7 @@ void stepsystem(long ProcessId)
     }
 
     Local[ProcessId].mynbody = 0;
-    find_my_bodies(Global->G_root, 0, BRC_FUC, ProcessId );
+    find_my_bodies((nodeptr)Global->G_root, 0, BRC_FUC, ProcessId );
 
 /*     B*RRIER(Global->Barcom,NPROC); */
     if ((ProcessId == 0) && (Local[ProcessId].nstep >= 2)) {
@@ -690,7 +691,9 @@ void stepsystem(long ProcessId)
        MULVS(dvel, Acc(p), dthf);
        ADDV(vel1, Vel(p), dvel);
        MULVS(dpos, vel1, dtime);
+		ALOCK(CellLock->CL, ((bodyptr) p)->parent->seqnum % MAXLOCK);
        ADDV(Pos(p), Pos(p), dpos);
+		AULOCK(CellLock->CL, ((bodyptr) p)->parent->seqnum % MAXLOCK);
        ADDV(Vel(p), vel1, dvel);
 
        for (i = 0; i < NDIM; i++) {

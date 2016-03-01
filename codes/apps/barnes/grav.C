@@ -58,7 +58,9 @@ void gravsub(register nodeptr p, long ProcessId)
     vector ai;
 
     if (p != Local[ProcessId].pmem) {
+		ALOCK(CellLock->CL, ((bodyptr) p)->parent->seqnum % MAXLOCK);
         SUBV(Local[ProcessId].dr, Pos(p), Local[ProcessId].pos0);
+		AULOCK(CellLock->CL, ((bodyptr) p)->parent->seqnum % MAXLOCK);
         DOTVP(Local[ProcessId].drsq, Local[ProcessId].dr, Local[ProcessId].dr);
     }
 
@@ -95,7 +97,7 @@ void gravsub(register nodeptr p, long ProcessId)
 
 void hackwalk(long ProcessId)
 {
-    walksub(Global->G_root, Global->rsize * Global->rsize, ProcessId);
+    walksub((nodeptr)Global->G_root, Global->rsize * Global->rsize, ProcessId);
 }
 
 /*
@@ -122,7 +124,7 @@ void walksub(nodeptr n, real dsq, long ProcessId)
 	 for (i = 0; i < l->num_bodies; i++) {
 	    p = Bodyp(l)[i];
 	    if (p != Local[ProcessId].pskip) {
-	       gravsub(p, ProcessId);
+	       gravsub((nodeptr)p, ProcessId);
 	    }
 	    else {
 	       Local[ProcessId].skipself = TRUE;

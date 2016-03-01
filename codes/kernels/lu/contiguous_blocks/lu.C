@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <unistd.h>
 MAIN_ENV
 
 #define MAXRAND                         32767.0
@@ -49,8 +50,6 @@ MAIN_ENV
 #define DEFAULT_P                           1
 #define DEFAULT_B                          16
 #define min(a,b) ((a) < (b) ? (a) : (b))
-//#define PAGE_SIZE                       4096
-#define PAGE_SIZE			1024
 
 struct GlobalMemory {
   double *t_in_fac;   
