@@ -16,3 +16,11 @@ codes/kernels/lu/non_contiguous_blocks/LU
 codes/kernels/radix/RADIX
 !codes/apps/radiosity/glibdumb/
 !codes/apps/radiosity/glibps/
+
+codes/apps/volrend/inputs/*.tiff
+codes/apps/ocean/contiguous_partitions/output.out
+codes/apps/ocean/non_contiguous_partitions/output.out
+codes/apps/fmm/times
+codes/apps/radiosity/glibdumb/glib.a
+codes/apps/radiosity/glibps/glibps.a
+codes/apps/raytrace/inputs/car.rl
