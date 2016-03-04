@@ -454,11 +454,15 @@ long bf_error_analysis(Element *elem, Interaction *inter, long process_id)
     else
         visibility_error = FF_VISIBILITY_ERROR ;
 
+#ifndef WITH_NO_OPTIONAL_LOCKS
     LOCK(inter->destination->elem_lock->lock);
+#endif // WITH_NO_OPTIONAL_LOCKS
     rad_avg =( inter->destination->rad.r
               + inter->destination->rad.g
               + inter->destination->rad.b ) * (float)(1.0 / 3.0) ;
+#ifndef WITH_NO_OPTIONAL_LOCKS
     UNLOCK(inter->destination->elem_lock->lock);
+#endif // WITH_NO_OPTIONAL_LOCKS
 
 
     total_error = (inter->visibility * inter->formfactor_err
@@ -785,11 +789,15 @@ static void process_rays3(Element *e, long process_id)
     else
         {
             /* Update element radiosity at the leaf level */
+#ifndef WITH_NO_OPTIONAL_LOCKS
 			LOCK(e->elem_lock->lock);
+#endif // WITH_NO_OPTIONAL_LOCKS
             e->rad.r = e->rad_in.r + e->rad_subtree.r + e->patch->emittance.r ;
             e->rad.g = e->rad_in.g + e->rad_subtree.g + e->patch->emittance.g ;
             e->rad.b = e->rad_in.b + e->rad_subtree.b + e->patch->emittance.b ;
+#ifndef WITH_NO_OPTIONAL_LOCKS
 			UNLOCK(e->elem_lock->lock);
+#endif // WITH_NO_OPTIONAL_LOCKS
             /* Ship out radiosity to the parent */
             elem_join_operation( e->parent, e, process_id ) ;
         }
@@ -914,11 +922,15 @@ static void gather_rays(Element *elem, long process_id)
             /* Be careful !
                Use FF(out) to compute incoming energy */
             ff_v = inter->formfactor_out * inter->visibility ;
+#ifndef WITH_NO_OPTIONAL_LOCKS
             LOCK(inter->destination->elem_lock->lock);
+#endif // WITH_NO_OPTIONAL_LOCKS
             bf_r = ff_v * inter->destination->rad.r ;
             bf_g = ff_v * inter->destination->rad.g ;
             bf_b = ff_v * inter->destination->rad.b ;
+#ifndef WITH_NO_OPTIONAL_LOCKS
             UNLOCK(inter->destination->elem_lock->lock);
+#endif // WITH_NO_OPTIONAL_LOCKS
 
             rad_elem.r += bf_r ;
             rad_elem.g += bf_g ;

@@ -194,7 +194,9 @@ InitExp (box *b)
 {
    long i;
 
+#ifndef WITH_NO_OPTIONAL_LOCKS
    ALOCK(G_Memory->lock_array, b->exp_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
    for (i = 0; i < Expansion_Terms; i++) {
       b->mp_expansion[i].r = 0.0;
       b->mp_expansion[i].i = 0.0;
@@ -203,7 +205,9 @@ InitExp (box *b)
       b->x_expansion[i].r = 0.0;
       b->x_expansion[i].i = 0.0;
    }
+#ifndef WITH_NO_OPTIONAL_LOCKS
    AULOCK(G_Memory->lock_array, b->exp_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 }
 
 
@@ -621,11 +625,15 @@ ShiftLocalExp (box *pb, box *cb)
    z0_pow_minus_n.r = One.r;
    z0_pow_minus_n.i = One.i;
    for (i = 0; i < Expansion_Terms; i++) {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 	  ALOCK(G_Memory->lock_array, pb->exp_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
       COMPLEX_ADD(pb->local_expansion[i], pb->local_expansion[i],
 		  pb->x_expansion[i]);
       COMPLEX_MUL(temp_exp[i], z0_pow_n, pb->local_expansion[i]);
+#ifndef WITH_NO_OPTIONAL_LOCKS
 	  AULOCK(G_Memory->lock_array, pb->exp_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
       COMPLEX_MUL(z0_pow_n, z0_pow_n, z0);
    }
    for (i = 0; i < Expansion_Terms; i++) {

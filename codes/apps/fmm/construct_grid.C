@@ -391,8 +391,10 @@ FindHome (long my_id, particle *p, box *current_home)
 
    pb = FindInitialRoot(p, current_home);
    while (pb->type == PARENT) {
-      long lock_index = pb->particle_lock_index;
+     long lock_index = pb->particle_lock_index;
+ #ifndef WITH_NO_OPTIONAL_LOCKS
       ALOCK(G_Memory->lock_array, lock_index);
+ #endif // WITH_NO_OPTIONAL_LOCKS
       if (p->pos.y > pb->y_center) {
 	 if (p->pos.x > pb->x_center) {
 	    if (pb->children[0] == NULL)
@@ -417,7 +419,9 @@ FindHome (long my_id, particle *p, box *current_home)
 	    pb = pb->children[2];
 	 }
       }
+ #ifndef WITH_NO_OPTIONAL_LOCKS
       AULOCK(G_Memory->lock_array, lock_index);
+ #endif // WITH_NO_OPTIONAL_LOCKS
    }
    return pb;
 }
@@ -501,7 +505,9 @@ SubdivideBox (long my_id, box *b)
    box *child;
    long i;
 
+#ifndef WITH_NO_OPTIONAL_LOCKS
    ALOCK(G_Memory->lock_array, b->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
    for (i = 0; i < b->num_particles; i++) {
       p = b->particles[i];
       if (p->pos.y > b->y_center) {
@@ -533,7 +539,9 @@ SubdivideBox (long my_id, box *b)
    }
    b->num_particles = 0;
    b->type = PARENT;
+#ifndef WITH_NO_OPTIONAL_LOCKS
    AULOCK(G_Memory->lock_array, b->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 }
 
 
@@ -569,9 +577,13 @@ MLGHelper (long my_id, box *local_box, box *global_box, box *global_parent)
 	       success = TRUE;
 	       for (i = 0; i < NUM_OFFSPRING; i++) {
               if (local_box->children[i] != NULL) {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 				 ALOCK(G_Memory->lock_array, global_box->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
                  box * gbc = global_box->children[i];
+#ifndef WITH_NO_OPTIONAL_LOCKS
 				 AULOCK(G_Memory->lock_array, global_box->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 				 box * lbc = local_box->children[i];
                  MLGHelper(my_id, lbc, gbc, global_box);
               }
@@ -616,9 +628,13 @@ MLGHelper (long my_id, box *local_box, box *global_box, box *global_parent)
 	 if (global_parent == NULL)
 	    global_box = Grid;
 	 else {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		ALOCK(G_Memory->lock_array, global_parent->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 	    global_box = global_parent->children[local_box->child_num];
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		AULOCK(G_Memory->lock_array, global_parent->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
      }
       }
    }
@@ -638,9 +654,13 @@ MergeLocalParticles (long my_id, particle **p_array, long num_of_particles, box 
 		  (particle **) p_dist, num_p_dist, pb);
    for (i= 0; i < NUM_OFFSPRING; i++) {
       if (num_p_dist[i] > 0) {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		 ALOCK(G_Memory->lock_array, pb->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 	 child = pb->children[i];
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		 AULOCK(G_Memory->lock_array, pb->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 	 if (child == NULL) {
 	    child = CreateLeaf(my_id, pb, i, p_dist[i], num_p_dist[i]);
 	    success = InsertBoxInGrid(my_id, child, pb);
@@ -664,9 +684,13 @@ MergeLocalParticles (long my_id, particle **p_array, long num_of_particles, box 
 	    }
 	 }
 	 if (success == FALSE) {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		ALOCK(G_Memory->lock_array, pb->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
         box * pbc = pb->children[child->child_num];
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		AULOCK(G_Memory->lock_array, pb->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
         MLGHelper(my_id, child, pbc, pb);
 	 }
       }
@@ -812,7 +836,9 @@ RemoveBoxFromGrid (box *b, box *pb)
       UNLOCK(G_Memory->single_lock);
    }
    else {
+#ifndef WITH_NO_OPTIONAL_LOCKS
       ALOCK(G_Memory->lock_array, pb->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
       if (pb->children[b->child_num] == b) {
 	 pb->children[b->child_num] = NULL;
 	 b->parent = NULL;
@@ -821,7 +847,9 @@ RemoveBoxFromGrid (box *b, box *pb)
       }
       else
 	 success = FALSE;
+#ifndef WITH_NO_OPTIONAL_LOCKS
       AULOCK(G_Memory->lock_array, pb->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
    }
    return success;
 }
@@ -841,9 +869,13 @@ InsertSubtreeInPartition (long my_id, box *b)
    AULOCK(G_Memory->lock_array, b->particle_lock_index);
    if (b_type == PARENT) {
       for (i = 0; i < NUM_OFFSPRING; i++) {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		 ALOCK(G_Memory->lock_array, b->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 	 child = b->children[i];
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		 AULOCK(G_Memory->lock_array, b->particle_lock_index);
+#endif // WITH_NO_OPTIONAL_LOCKS
 	 if (child == NULL)
 	    child = b->shadow[i];
 	 if (child != NULL)

@@ -58,9 +58,13 @@ void gravsub(register nodeptr p, long ProcessId)
     vector ai;
 
     if (p != Local[ProcessId].pmem) {
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		ALOCK(CellLock->CL, ((bodyptr) p)->parent->seqnum % MAXLOCK);
+#endif // WITH_NO_OPTIONAL_LOCKS
         SUBV(Local[ProcessId].dr, Pos(p), Local[ProcessId].pos0);
+#ifndef WITH_NO_OPTIONAL_LOCKS
 		AULOCK(CellLock->CL, ((bodyptr) p)->parent->seqnum % MAXLOCK);
+#endif // WITH_NO_OPTIONAL_LOCKS
         DOTVP(Local[ProcessId].drsq, Local[ProcessId].dr, Local[ProcessId].dr);
     }
 
