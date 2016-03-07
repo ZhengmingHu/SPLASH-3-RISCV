@@ -4,6 +4,7 @@
 codes/apps/barnes/BARNES
 codes/apps/fmm/FMM
 codes/apps/ocean/contiguous_partitions/OCEAN
+codes/apps/ocean/non_contiguous_partitions/OCEAN
 codes/apps/radiosity/RADIOSITY
 codes/apps/raytrace/RAYTRACE
 codes/apps/volrend/VOLREND
