@@ -2,7 +2,7 @@ Splash-3 Benchmark Suite
 ========================
 
 Splash-3 is a benchmark suite based on Splash-2 but without data races. It was
-first presented at [ISPASS'16](TODO: Link to IEEE when possible).
+first presented at [ISPASS'16](TODO: Not available on IEEE just yet).
 
 The version found here is a refined version of the one used in the ISPASS paper.
 The main difference is that it is based on the [Modified
@@ -19,18 +19,33 @@ else, such as the algorithms or the synchronization characteristics of the
 applications remain unchanged, making the overall performance difference between
 this version and the ISPASS version minimal.
 
+## Installation
+
+There is no need to install Splash-3. All you need to do is set the `BASEDIR`
+variable in `codes/Makefile.config` to point to the full path of the `codes`
+directory.
+
+## Tarballs
+
+For tarball releases please visit our website at
+[etascale.com](https://argodsm.com/vips%20coherence/splash-3.html).
+
 ## Citing Splash-3
 
 To properly cite Splash-3 please cite our ISPASS'16 paper.
 
-	TODO: Add citation and bibtex (not yet published at this time)
+	C. Sakalis, C. Leonardsson, S. Kaxiras, and A. Ros, “Splash-3: A
+	properly synchronized benchmark suite for contemporary research,”
+	in Performance Analysis of Systems and Software (ISPASS), 2016
+	IEEE International Symposium On, IEEE, 2016.
 
 ## Different Versions
 
-As of this time, the head of the master branch contains the Splash-3 code. If
-changes that significantly affect the synchronization or performance
-characteristics are made, the last Splash-3 version will be taged as `v3.0` for
-convenience.
+The first release of Splash-3 is tagged as `v3.0`. Small fixes might be
+published untagged on the master branch, as long as they do not significantly
+affect the performance or other characteristics of the applications. If such
+changes were to be published, then a new tag will be created and the master will
+no longer be considered to contain version 3.0.
 
 It is also possible to access the original and the Modified Splash-2 codes.
 They are tagged as `v2.0` and `v2.0M` respectively.
@@ -67,7 +82,7 @@ DO SO. The applications have not been tested without those locks, and even the
 ## Original source code from the ISPASS'16 paper
 
 If you are interested in the exact source code used for the ISPASS'16 paper,
-please contact me.
+please contact Christos Sakalis directly.
 
 ---
 
