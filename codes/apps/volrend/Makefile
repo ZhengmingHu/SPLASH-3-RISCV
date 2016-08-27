@@ -1,5 +1,5 @@
 TARGET = VOLREND
-OBJS = adaptive.o file.o main.o map.o normal.o octree.o opacity.o option.o raytrace.o render.o view.o
+OBJS = adaptive.o file.o main.o map.o normal.o octree.o opacity.o option.o raytrace.o render.o view.o libtiff/libtiff.a
 
 include ../../Makefile.config
 
@@ -19,3 +19,6 @@ adaptive.c: adaptive.C incl.h anl.h
 raytrace.c: raytrace.C incl.h address.h
 
 incl.h:	user_options.h const.h my_types.h global.h macros.h address.h
+
+libtiff/libtiff.a:
+	make -C libtiff
