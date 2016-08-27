@@ -62,10 +62,10 @@ void Compute_Opacity()
   Global->Index = NODE0;
 
 #ifndef SERIAL_PREPROC
-  for (i=1; i<num_nodes; i++) CREATE(Opacity_Compute)
-#endif
-
+  CREATE(Opacity_Compute, num_nodes)
+#else
   Opacity_Compute();
+#endif
 }
 
 

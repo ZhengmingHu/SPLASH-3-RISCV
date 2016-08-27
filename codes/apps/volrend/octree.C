@@ -99,10 +99,10 @@ on all processors, don't do this create.
 */
 
 #ifndef SERIAL_PREPROC
-  for (i=1; i<num_nodes; i++) CREATE(Compute_Base)
-#endif
-
+  CREATE(Compute_Base, num_nodes)
+#else
   Compute_Base();
+#endif
 
   printf("    Performing OR of eight neighbors in binary mask...\n");
 
@@ -114,10 +114,10 @@ on all processors, don't do this create.
 */
 
 #ifndef SERIAL_PREPROC
-  for (i=1; i<num_nodes; i++) CREATE(Or_Neighbors_In_Base)
-#endif
-
+  CREATE(Or_Neighbors_In_Base, num_nodes)
+#else
   Or_Neighbors_In_Base();
+#endif
 
   for (level=1; level<pyr_levels; level++) {
     for (i=0; i<NM; i++) {

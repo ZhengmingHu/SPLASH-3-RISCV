@@ -63,10 +63,10 @@ void Compute_Normal()
   Global->Index = NODE0;
 
 #ifndef SERIAL_PREPROC
-  for (i=1; i<num_nodes; i++) CREATE(Normal_Compute)
-#endif
-
+  CREATE(Normal_Compute, num_nodes)
+#else
   Normal_Compute();
+#endif
 }
 
 
