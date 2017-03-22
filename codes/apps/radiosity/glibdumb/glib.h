@@ -14,7 +14,7 @@
 #ifndef _GLIB_H
 #define _GLIB_H
 
-#include "../structs.H"
+#include "../structs.h"
 
 /****************************************
 *

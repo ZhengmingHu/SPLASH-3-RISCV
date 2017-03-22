@@ -18,7 +18,7 @@
 #ifndef _PATCH_H
 #define _PATCH_H
 
-#include "structs.H"
+#include "structs.h"
 
 /************************************************************************
 *

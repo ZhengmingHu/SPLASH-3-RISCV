@@ -14,7 +14,7 @@
 #ifndef _PSLIB_H
 #define _PSLIB_H
 
-#include "../structs.H"
+#include "../structs.h"
 
 #define M_PI           3.14159265358979323846
 

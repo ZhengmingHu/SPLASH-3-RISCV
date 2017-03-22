@@ -6,23 +6,23 @@ OBJS = bbox.o cr.o env.o fbuf.o geo.o huprn.o husetup.o hutv.o isect.o \
 
 include ../../Makefile.config
 
-bbox.c: bbox.C rt.h
-cr.c:	cr.C rt.h
-env.c:	env.C rt.h
-fbuf.c: fbuf.C rt.h
-geo.c:	geo.C rt.h
-huprn.c: huprn.C rt.h
-husetup.c: husetup.C rt.h
-hutv.c: hutv.C rt.h
-isect.c: isect.C rt.h
-main.c: main.C rt.h
-matrix.c: matrix.C rt.h
-memory.c: memory.C rt.h
-poly.c: poly.C rt.h
-raystack.c: raystack.C rt.h
-shade.c: shade.C rt.h
-sph.c:	sph.C rt.h
-trace.c: trace.C rt.h
-tri.c:	tri.C rt.h
-workpool.c: workpool.C rt.h
+bbox.c: bbox.c.in rt.h
+cr.c:	cr.c.in rt.h
+env.c:	env.c.in rt.h
+fbuf.c: fbuf.c.in rt.h
+geo.c:	geo.c.in rt.h
+huprn.c: huprn.c.in rt.h
+husetup.c: husetup.c.in rt.h
+hutv.c: hutv.c.in rt.h
+isect.c: isect.c.in rt.h
+main.c: main.c.in rt.h
+matrix.c: matrix.c.in rt.h
+memory.c: memory.c.in rt.h
+poly.c: poly.c.in rt.h
+raystack.c: raystack.c.in rt.h
+shade.c: shade.c.in rt.h
+sph.c:	sph.c.in rt.h
+trace.c: trace.c.in rt.h
+tri.c:	tri.c.in rt.h
+workpool.c: workpool.c.in rt.h
 

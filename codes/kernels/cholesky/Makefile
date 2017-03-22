@@ -4,7 +4,6 @@ OBJS = amal.o assign.o bfac.o bksolve.o block2.o fo.o malloc.o \
 
 include ../../Makefile.config
 
-matrix.h: matrix.H
 amal.c: matrix.h
 block2.c: matrix.h
 numLL.c: matrix.h

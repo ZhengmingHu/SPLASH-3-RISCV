@@ -25,3 +25,6 @@ codes/apps/fmm/times
 codes/apps/radiosity/glibdumb/glib.a
 codes/apps/radiosity/glibps/glibps.a
 codes/apps/raytrace/inputs/car.rl
+
+codes/apps/volrend/libtiff/libtiff.a
+codes/apps/volrend/libtiff/mkg3states
