@@ -31,7 +31,7 @@ static char rcsid[] = "$Header: /usr/people/sam/tiff/libtiff/RCS/tif_compat.c,v 
  */
 #include "tiffioP.h"
 
-#if defined(unix) || defined(__unix) || defined(MSDOS) || defined(VMS)
+#if defined(unix) || defined(__unix) || defined(MSDOS) || defined(VMS) || defined(__APPLE__)
 #include <sys/stat.h>
 
 long
@@ -44,7 +44,7 @@ TIFFGetFileSize(fd)
 }
 #endif
 
-#if (defined(unix) || defined(__unix)) && defined(MMAP_SUPPORT)
+#if (defined(unix) || defined(__unix) || defined(__APPLE__)) && defined(MMAP_SUPPORT)
 #include <sys/mman.h>
 
 int
@@ -71,7 +71,7 @@ TIFFUnmapFileContents(base, size)
 {
 	(void) munmap(base, size);
 }
-#endif /* (defined(unix) || defined(__unix)) && defined(MMAP_SUPPORT) */
+#endif /* (defined(unix) || defined(__unix) || defined(__APPLE__)) && defined(MMAP_SUPPORT) */
 
 #if defined(VMS) && defined(MMAP_SUPPORT)
 #include <fab.h>
