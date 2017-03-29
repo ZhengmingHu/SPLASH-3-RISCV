@@ -145,7 +145,7 @@ InitBox (long my_id, real x_center, real y_center, real length, box *parent)
 
 
 /*
- *  PrintBox (box *b)
+ *  PrintBox (long, box *b)
  *
  *  Args : the address of a box, b.
  *
@@ -155,8 +155,9 @@ InitBox (long my_id, real x_center, real y_center, real length, box *parent)
  *
  */
 void
-PrintBox (long id, box *b)
+PrintBox (long my_id, box *b)
 {
+   (void)my_id;
    LOCK(G_Memory->io_lock);
    fflush(stdout);
    if (b != NULL) {

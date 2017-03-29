@@ -52,6 +52,7 @@ void BNDRY(long ProcID)     /* this routine puts the molecules back inside the b
                 extra_p = curr_ptr->mol.F[DISP][dir];
 
                 /* if the oxygen atom is out of the box */
+                while(extra_p[O] > BOXL || extra_p[O] < 0.00) {
                 if (extra_p[O] > BOXL ) {
 
                     /* move all three atoms back in the box */
@@ -64,6 +65,7 @@ void BNDRY(long ProcID)     /* this routine puts the molecules back inside the b
                     extra_p[O]  += BOXL;
                     extra_p[H2] += BOXL;
                 }
+		}
             } /* for dir */
 
             /* If O atom moves out of current box, put it in correct box */

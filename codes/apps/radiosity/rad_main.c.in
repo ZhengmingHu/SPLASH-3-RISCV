@@ -48,6 +48,10 @@ include(radiosity.h)
   Global *global;
   Timing **timing;
 
+  long MAX_ELEMENTS = 100000;
+  long MAX_INTERACTIONS = 1000000;
+  long MAX_ELEMVERTICES = 100000;
+  long MAX_EDGES = 100000;
 
   /***************************************
    *
@@ -168,6 +172,26 @@ int main(int argc, char *argv[])
     MAIN_INITENV(,60000000) ;
 
     /* Allocate global shared memory and initialize */
+    if(BFepsilon <= 0.00002){
+      MAX_ELEMENTS *= 30;
+      MAX_INTERACTIONS *= 50;
+      MAX_ELEMVERTICES *= 30;
+      MAX_EDGES *= 30;
+
+    }else if(BFepsilon <= 0.0002){
+      MAX_ELEMENTS *= 20;
+      MAX_INTERACTIONS *= 30;
+      MAX_ELEMVERTICES *= 20;
+      MAX_EDGES *= 20;
+
+    }else if(BFepsilon <= 0.002){
+      MAX_ELEMENTS *= 10;
+      MAX_INTERACTIONS *= 20;
+      MAX_ELEMVERTICES *= 10;
+      MAX_EDGES *= 10;
+    }
+
+
     global = (Global *) G_MALLOC(sizeof(Global)) ;
     if( global == 0 )
         {
@@ -1142,8 +1166,8 @@ static void parse_args(int argc, char *argv[])
         }
     if( (n_taskqueues < 1) || (MAX_TASKQUEUES < n_taskqueues) )
         {
-            fprintf( stderr, "Bad number of task queues: %ld\n",
-                    n_taskqueues ) ;
+            fprintf( stderr, "Bad number of task queues: %ld (max: %d)\n",
+		     n_taskqueues, MAX_TASKQUEUES ) ;
             exit(1) ;
         }
     /* Check epsilon values */

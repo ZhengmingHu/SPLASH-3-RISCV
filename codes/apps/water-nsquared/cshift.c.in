@@ -27,10 +27,10 @@ EXTERN_ENV
      these distances as if one of the particles were at its mirror image
      (periodic boundary conditions).
      used by the intermolecular interactions routines */
-void CSHIFT(double *XA, double *XB, double XMA, double XMB, double *XL, double BOXH, double BOXL)
+inline void CSHIFT(double *XA, double *XB, double XMA, double XMB, double *XL, double BOXH, double BOXL)
 {
 
-    long I;
+    int I;
 
     XL[0] = XMA-XMB;
     XL[1] = XMA-XB[0];

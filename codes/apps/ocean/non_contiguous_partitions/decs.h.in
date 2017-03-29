@@ -14,10 +14,15 @@
 /*                                                                       */
 /*************************************************************************/
 
-#define INPROCS        16
-#define IMAX          258
-#define JMAX          258
-#define MAX_LEVELS      9
+#define INPROCS      1024
+#define MAX_LEVELS     14
+#ifdef SPARC_SOLARIS //32bit
+#define IMAX         2050
+#define JMAX         2050
+#else
+#define IMAX         8098
+#define JMAX         8098
+#endif
 #define MASTER          0
 #define RED_ITER        0
 #define BLACK_ITER      1

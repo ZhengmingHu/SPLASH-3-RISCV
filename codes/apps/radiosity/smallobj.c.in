@@ -22,6 +22,7 @@
  *************************************************************************/
 
 #include <stdio.h>
+#include <string.h>
 
 EXTERN_ENV;
 
@@ -350,6 +351,9 @@ void init_elemvertex(long process_id)
 {
     long ev_cnt ;
 
+    global->elemvertex_buf = (ElemVertex*)G_MALLOC(MAX_ELEMVERTICES*sizeof(ElemVertex));
+    memset(global->elemvertex_buf, 0, MAX_ELEMVERTICES*sizeof(ElemVertex));
+
     /* Initialize global free list */
     LOCKINIT(global->free_elemvertex_lock);
     global->free_elemvertex = 0 ;
@@ -542,6 +546,9 @@ Edge *get_edge(long process_id)
 void init_edge(long process_id)
 {
     long edge_cnt ;
+
+    global->edge_buf = (Edge*)G_MALLOC(MAX_EDGES*sizeof(Edge));
+    memset(global->edge_buf, 0, MAX_EDGES*sizeof(Edge));
 
     /* Initialize global free list */
     LOCKINIT(global->free_edge_lock);

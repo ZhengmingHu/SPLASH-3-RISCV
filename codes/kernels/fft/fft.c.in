@@ -68,7 +68,7 @@ struct GlobalMemory {
   unsigned long initdonetime;
 } *Global;
 
-
+int  is_output = 1;
 long P = DEFAULT_P;
 long M = DEFAULT_M;
 long N;                  /* N = 2^M                                */
@@ -599,6 +599,7 @@ void FFT1D(long direction, long M, long N, double *x, double *scratch, double *u
   m1 = M/2;
   n1 = 1<<m1;
 
+  printf("iter_num = %lu\n", MyLast - MyFirst);
   BARRIER(Global->start, P);
 
   if ((MyNum == 0) || (dostats)) {
@@ -611,6 +612,7 @@ void FFT1D(long direction, long M, long N, double *x, double *scratch, double *u
   if ((MyNum == 0) || (dostats)) {
     CLOCK(clocktime2);
     *l_transtime += (clocktime2-clocktime1);
+    printf("Step 1: %8lu\n", clocktime2-clocktime1);
   }
 
   /* do n1 1D FFTs on columns */
@@ -623,6 +625,7 @@ void FFT1D(long direction, long M, long N, double *x, double *scratch, double *u
 
   if ((MyNum == 0) || (dostats)) {
     CLOCK(clocktime1);
+    printf("Step 2: %8lu\n", clocktime1-clocktime2);
   }
   /* transpose */
   Transpose(n1, scratch, x, MyNum, MyFirst, MyLast, pad_length);
@@ -630,6 +633,7 @@ void FFT1D(long direction, long M, long N, double *x, double *scratch, double *u
   if ((MyNum == 0) || (dostats)) {
     CLOCK(clocktime2);
     *l_transtime += (clocktime2-clocktime1);
+    printf("Step 3: %8lu\n", clocktime2-clocktime1);
   }
 
   /* do n1 1D FFTs on columns again */
@@ -643,6 +647,7 @@ void FFT1D(long direction, long M, long N, double *x, double *scratch, double *u
 
   if ((MyNum == 0) || (dostats)) {
     CLOCK(clocktime1);
+    printf("Step 4: %8lu\n", clocktime1-clocktime2);
   }
 
   /* transpose back */
@@ -651,6 +656,7 @@ void FFT1D(long direction, long M, long N, double *x, double *scratch, double *u
   if ((MyNum == 0) || (dostats)) {
     CLOCK(clocktime2);
     *l_transtime += (clocktime2-clocktime1);
+    printf("Step 5: %8lu\n", clocktime2-clocktime1);
   }
 
   BARRIER(Global->start, P);
@@ -712,6 +718,7 @@ void Transpose(long n1, double *src, double *dest, long MyNum, long MyFirst, lon
   long h;
   long n1p;
   long row_count;
+  long iter_num = 0;
 
   blksize = MyLast-MyFirst;
   numblks = (2*blksize)/num_cache_lines;
@@ -730,6 +737,7 @@ void Transpose(long n1, double *src, double *dest, long MyNum, long MyFirst, lon
         for (i=0; i<blksize; i++) {
 	  v = v_off + i;
           for (j=0; j<blksize; j++) {
+            iter_num ++;
 	    h = h_off + j;
             dest[2*(h*n1p+v)] = src[2*(v*n1p+h)];
             dest[2*(h*n1p+v)+1] = src[2*(v*n1p+h)+1];
@@ -740,6 +748,7 @@ void Transpose(long n1, double *src, double *dest, long MyNum, long MyFirst, lon
       v_off+=blksize;
     }
   }
+  printf("Transpose: iter_num = %lu\n", iter_num);
 
   for (l=0;l<MyNum;l++) {
     v_off = l*row_count;
@@ -821,6 +830,7 @@ void FFT1DOnce(long direction, long M, long N, double *u, double *x)
   double tau_c; 
   double x_r; 
   double x_c;
+  long iter_num = 0;
 
   Reverse(N, M, x);
 
@@ -831,6 +841,7 @@ void FFT1DOnce(long direction, long M, long N, double *u, double *x)
       x1 = &x[2*(k*L)];
       x2 = &x[2*(k*L+Lstar)];
       for (j=0; j<Lstar; j++) {
+        iter_num ++;
 	omega_r = u1[2*j]; 
         omega_c = direction*u1[2*j+1];
 	x_r = x2[2*j]; 
@@ -845,6 +856,10 @@ void FFT1DOnce(long direction, long M, long N, double *u, double *x)
 	x1[2*j+1] = x_c + tau_c;
       }
     }
+  }
+  if(is_output == 1){
+      printf("FFt1DOnce: iter_num = %lu\n", iter_num);
+      is_output = 0;
   }
 }
 

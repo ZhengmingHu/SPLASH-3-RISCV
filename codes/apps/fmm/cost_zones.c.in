@@ -67,7 +67,6 @@ void
 ComputeSubTreeCosts (long my_id, box *b)
 {
    box *pb;
-   long is;
 
    ALOCK(G_Memory->lock_array, b->exp_lock_index);
    if (b->type == PARENT) {

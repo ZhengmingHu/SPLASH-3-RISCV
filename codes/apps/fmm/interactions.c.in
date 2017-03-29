@@ -91,7 +91,6 @@ PrintExpTables ()
 void
 UpwardPass (long my_id, box *b)
 {
-   long is;
    InitExp(b);
    if (b->type == CHILDLESS) {
       ComputeMPExp(b);
@@ -132,7 +131,6 @@ ComputeInteractions (long my_id, box *b)
 void
 DownwardPass (long my_id, box *b)
 {
-   long is;
    if (b->parent != NULL) {
      ALOCK(G_Memory->lock_array, b->parent->exp_lock_index);
 	 while(b->parent->interaction_synch != 0)
@@ -379,7 +377,6 @@ VListInteraction (long my_id, box *source_box, box *dest_box)
    complex temp;
    long i;
    long j;
-   long is;
 
    if (source_box->type == CHILDLESS) {
      ALOCK(G_Memory->lock_array, source_box->exp_lock_index);
@@ -461,7 +458,6 @@ WListInteraction (box *source_box, box *dest_box)
    complex particle_pos;
    long i;
    long j;
-   long is;
 
    if (source_box->type == CHILDLESS) {
      ALOCK(G_Memory->lock_array, source_box->exp_lock_index);

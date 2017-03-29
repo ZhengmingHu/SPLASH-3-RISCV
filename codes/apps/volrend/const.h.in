@@ -23,17 +23,17 @@
 
 #define PI           3.14159265358979323846
 
-#define MAX_NUMPROC           64
+#define MAX_NUMPROC           1024
 #define NODE0                  0    /* processor no. to which first process is bound */
 
                                 /* rendering parameters                      */
 #define PIXELS_PER_BLOCK_DIM   4
 #define ZSCALE                 1
 #ifdef DIM
-#define ROTATE_STEPS          8
+//#define ROTATE_STEPS          100
 #define STEP_SIZE             3
 #else
-#define ROTATE_STEPS           8
+//#define ROTATE_STEPS           100
 #define STEP_SIZE              3
 #endif
 #define ROOT                   0
@@ -72,7 +72,7 @@
 #define PIX_CUR_VERSION 1       /*   version of .pix file used               */
 
 				/* Definition of string sizes:               */
-#define	FILENAME_SIZE		80			/* max user filename */
+#define	FILENAME_SIZE		200			/* max user filename */
 #define FILENAME_STRING_SIZE	(FILENAME_SIZE+1)	/* + 1 for null char */
 
 				/* Definition of minimum and maximum values: */

@@ -70,25 +70,25 @@ include(task.h)
 #define F_ZERO  (1.0e-6)
 
 #if defined(SIMULATOR)
-#define MAX_PROCESSORS (128)	      /* Maximum number of processors
+#define MAX_PROCESSORS (1024)	      /* Maximum number of processors
 (i.e., processes) created */
-#define MAX_TASKQUEUES (128)	      /* Maximum number of task queues */
-#define MAX_TASKS    (32768)	      /* # of available task descriptors */
+#define MAX_TASKQUEUES (1024)	      /* Maximum number of task queues */
+#define MAX_TASKS    (3276800)	      /* # of available task descriptors */
 #define MAX_PATCHES  (1024)	      /* # of available patch objects */
 #define MAX_ELEMENTS (80000)	      /* # of available element objects */
-#define MAX_INTERACTIONS (640000)     /* # of available interaction objs */
-#define MAX_ELEMVERTICES  (65536)     /* # of available ElemVertex objs */
-#define MAX_EDGES  (65536)            /* # of available Edge objs */
+#define MAX_INTERACTIONS (10000000)     /* # of available interaction objs */
+#define MAX_ELEMVERTICES  (65536 << 4)     /* # of available ElemVertex objs */
+#define MAX_EDGES  (65536 << 4)            /* # of available Edge objs */
 #endif
 
 #if defined(DASH)
-#define MAX_PROCESSORS (64)	      /* Maximum number of processors
+#define MAX_PROCESSORS (1024)	      /* Maximum number of processors
 (i.e., processes) created */
-#define MAX_TASKQUEUES (64)	      /* Maximum number of task queues */
+#define MAX_TASKQUEUES (1024)	      /* Maximum number of task queues */
 #define MAX_TASKS    (32768)	      /* # of available task descriptors */
 #define MAX_PATCHES  (1024)	      /* # of available patch objects */
 #define MAX_ELEMENTS (80000)	      /* # of available element objects */
-#define MAX_INTERACTIONS (640000)     /* # of available interaction objs */
+#define MAX_INTERACTIONS (10000000)     /* # of available interaction objs */
 #define MAX_ELEMVERTICES  (65536)     /* # of available ElemVertex objs */
 #define MAX_EDGES  (65536)            /* # of available Edge objs */
 #endif
@@ -100,7 +100,7 @@ include(task.h)
 #define MAX_TASKS    (8192)	      /* # of available task descriptors */
 #define MAX_PATCHES  (1024)	      /* # of available patch objects */
 #define MAX_ELEMENTS (40000)	      /* # of available element objects */
-#define MAX_INTERACTIONS (320000)     /* # of available interaction objs */
+#define MAX_INTERACTIONS (10000000)     /* # of available interaction objs */
 #define MAX_ELEMVERTICES  (16384)     /* # of available ElemVertex objs */
 #define MAX_EDGES  (65536)            /* # of available Edge objs */
 #endif
@@ -112,21 +112,21 @@ include(task.h)
 #define MAX_TASKS    (1024)	      /* # of available task descriptors */
 #define MAX_PATCHES  (1024)	      /* # of available patch objects */
 #define MAX_ELEMENTS (20000)	      /* # of available element objects */
-#define MAX_INTERACTIONS (160000)     /* # of available interaction objs */
+#define MAX_INTERACTIONS (10000000)     /* # of available interaction objs */
 #define MAX_ELEMVERTICES  (16384)     /* # of available ElemVertex objs */
 #define MAX_EDGES  (32768)            /* # of available Edge objs */
 #endif
 
 #if (!defined(SIMULATOR) && !defined(DASH) && !defined(SGI_GL) && !defined(SUN4))
-#define MAX_PROCESSORS (128)	      /* Maximum number of processors
+#define MAX_PROCESSORS (1024)	      /* Maximum number of processors
 (i.e., processes) created */
-#define MAX_TASKQUEUES (128)	      /* Maximum number of task queues */
-#define MAX_TASKS    (32768)	      /* # of available task descriptors */
+#define MAX_TASKQUEUES (1024)	      /* Maximum number of task queues */
+#define MAX_TASKS    (3276800)	      /* # of available task descriptors */
 #define MAX_PATCHES  (1024)	      /* # of available patch objects */
-#define MAX_ELEMENTS (80000)	      /* # of available element objects */
-#define MAX_INTERACTIONS (640000)     /* # of available interaction objs */
-#define MAX_ELEMVERTICES  (65536)     /* # of available ElemVertex objs */
-#define MAX_EDGES  (65536)            /* # of available Edge objs */
+extern long MAX_ELEMENTS; 	      /* # of available element objects */
+extern long MAX_INTERACTIONS;         /* # of available interaction objs */
+extern long MAX_ELEMVERTICES;         /* # of available ElemVertex objs */
+extern long MAX_EDGES;            /* # of available Edge objs */
 #endif
 
 #define MAX_SHARED_LOCK (3900)	      /* Maximum locks allocated. Objects
@@ -163,11 +163,11 @@ visibility task */
 #define DEFAULT_AREA_EPSILON (2000.0)
 /* If element is smaller than this value,
 no further subdivision takes place */
-#define DEFAULT_ENERGY_EPSILON (0.005)
+#define DEFAULT_ENERGY_EPSILON (0.00005)
 /* Terminate radiosity iteration if the
 difference of total energy is less than this
 value. */
-#define DEFAULT_BFEPSILON (0.015)
+#define DEFAULT_BFEPSILON (0.00015)
 /* BF refinement threshold level. If the estimated
 error of BF (due to FF error and error due to
 constant approximation within an element) is
@@ -296,20 +296,20 @@ typedef struct
     LOCKDEC(free_element_lock)
     Element *free_element ;
     long     n_free_elements ;
-    Element element_buf[ MAX_ELEMENTS ] ;
+    Element *element_buf;
 
     LOCKDEC(free_interaction_lock)
     Interaction *free_interaction ;
     long         n_free_interactions ;
-    Interaction interaction_buf[ MAX_INTERACTIONS ] ;
+    Interaction *interaction_buf;
 
     LOCKDEC(free_elemvertex_lock)
     long         free_elemvertex ;
-    ElemVertex  elemvertex_buf[ MAX_ELEMVERTICES ] ;
+    ElemVertex  *elemvertex_buf;
 
     LOCKDEC(free_edge_lock)
     long   free_edge ;
-    Edge  edge_buf[ MAX_EDGES ] ;
+    Edge  *edge_buf;
 
     Shared_Lock sh_lock[ MAX_SHARED_LOCK ] ;
 

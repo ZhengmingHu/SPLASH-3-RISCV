@@ -43,9 +43,14 @@ To properly cite Splash-3 please cite our ISPASS'16 paper.
 
 The first release of Splash-3 is tagged as `v3.0`. Small fixes might be
 published untagged on the master branch, as long as they do not significantly
-affect the performance or other characteristics of the applications. If such
-changes were to be published, then a new tag will be created and the master will
-no longer be considered to contain version 3.0.
+affect the performance or other characteristics of the applications.
+
+The current Splash-3 version, referred to as Splash-3x, is tagged as `v3.0X`.
+Splash-3x is based on Splash-2x from the PARSEC benchmark suite, which enables
+support for bigger input sets. In addition, Splash-3x contains some small
+changes that enable support for running with a higher number of threads. Note
+that Splash-2x also includes the fixes from the Modified Splash-2 and that
+Splash-3x is build on top of Splash-3.
 
 It is also possible to access the original and the Modified Splash-2 codes.
 They are tagged as `v2.0` and `v2.0M` respectively.

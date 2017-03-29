@@ -182,6 +182,8 @@ VOID	StartRayTrace()
 	INT	pid;			/* Our internal process id number.   */
 	UINT	begin;
 	UINT	end;
+	UINT	lapsed;
+
 
 	LOCK(gm->pidlock)
 	pid = gm->pid++;
@@ -198,7 +200,7 @@ VOID	StartRayTrace()
 
 	/*
 	 *	Wait for all processes to be created, initialize their work
-	 *	pools, and arrive at this point; then proceed.	This BARRIER
+	 *	pools, and arrive at this point; then proceed.	This barrier
 	 *	is absolutely required.  Read comments in PutJob before
 	 *	moving this barrier.
 	 */

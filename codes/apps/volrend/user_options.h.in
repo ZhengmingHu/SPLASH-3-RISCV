@@ -61,7 +61,7 @@ values.
 #define SERIAL_PREPROC                                  /* to do serial preprocessing*/
 #endif                                          /* with parallel rendering   */
 
-#if 0
+#if 1
 #define DIM                                     /* render rotations along    */
 #endif                                          /* all three Cartesian axes. */
           /* This means that there will be 3*ROTATE_STEPS frames rendered    */
