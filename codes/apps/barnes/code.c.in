@@ -303,12 +303,12 @@ void ANLinit()
    Global = (struct GlobalMemory *) G_MALLOC(sizeof(struct GlobalMemory));
    if (Global==NULL) error("No initialization for Global\n");
     
-   BARINIT(Global->Barload);
-   BARINIT(Global->Bartree);
-   BARINIT(Global->Barcom);
-   BARINIT(Global->Baraccel);
-   BARINIT(Global->Barstart);
-   BARINIT(Global->Barpos);
+   BARINIT(Global->Barload, NPROC);
+   BARINIT(Global->Bartree, NPROC);
+   BARINIT(Global->Barcom, NPROC);
+   BARINIT(Global->Baraccel, NPROC);
+   BARINIT(Global->Barstart, NPROC);
+   BARINIT(Global->Barpos, NPROC);
 
    LOCKINIT(Global->CountLock);
    LOCKINIT(Global->io_lock);
