@@ -2,7 +2,7 @@ Splash-3 Benchmark Suite
 ========================
 
 Splash-3 is a benchmark suite based on Splash-2 but without data races. It was
-first presented at [ISPASS'16](TODO: Not available on IEEE just yet).
+first presented at [ISPASS'16](http://ieeexplore.ieee.org/abstract/document/7482078/).
 
 The version found here is a refined version of the one used in the ISPASS paper.
 The main difference is that it is based on the [Modified
