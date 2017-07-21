@@ -302,7 +302,7 @@ void ISort(SMatrix M, long k)
 	for (i=lo; i<hi; i++) {
 		tmp = M.row[i];
 		j = i;
-		while (M.row[j-1] > tmp && j > lo) {
+		while (j > lo && M.row[j-1] > tmp) {
 			M.row[j] = M.row[j-1];
 			j--;
 			}

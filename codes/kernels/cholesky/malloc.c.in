@@ -149,7 +149,7 @@ char *MyMalloc(long size, long home)
 
       block_size = SIZE(d);
 
-      if (block_size >= alloc_size) {  /* Found one! */
+      if (block_size >= alloc_size + 2*sizeof(long)) {  /* Found one! */
 
 	leftover = block_size - alloc_size - 2*sizeof(long);
         result = d + (leftover/sizeof(long)) + 2;
@@ -191,7 +191,7 @@ char *MyMalloc(long size, long home)
     /* grab a big block, free it, then retry request */
     block_size = max(alloc_size, 4*(1<<MAXFAST));
     LOCK(Global->memLock);
-	//XXX WARNING: Violation of the strict aliasing rule
+    //XXX WARNING: Violation of the strict aliasing rule
     freespace = (long *) G_MALLOC(block_size+2*sizeof(long), home);
     MigrateMem(freespace, block_size+2*sizeof(long), home);
 
