@@ -4,6 +4,18 @@ dnl Modified by Alberto Ros and Christos Sakalis, 2015
 divert(-1)
 define(NEWPROC,) dnl
 
+dnl Empty ROI markers
+define(SPLASH3_ROI_BEGIN, `')
+define(SPLASH3_ROI_END, `')
+dnl
+dnl Sniper ROI markers
+dnl define(SPLASH3_ROI_BEGIN, `SimRoiStart()')
+dnl define(SPLASH3_ROI_END, `SimRoiEnd()')
+dnl
+dnl Gem5 ROI markers
+dnl define(SPLASH3_ROI_BEGIN, `m5_dumpreset_stats(0, 0)')
+dnl define(SPLASH3_ROI_END, `m5_dumpreset_stats(0, 0)')
+
 define(BARRIER,
 `{
 pthread_mutex_lock(&(($1).bar_mutex));

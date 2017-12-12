@@ -235,6 +235,7 @@ int main(int argc, char *argv[])
 
             /* Time stamp */
             CLOCK( time_rad_start );
+            SPLASH3_ROI_BEGIN();
 
             global->index = 0;
             for( i = 0 ; i < n_processors ; i++ )
@@ -245,6 +246,7 @@ int main(int argc, char *argv[])
             /* And start processing */
             CREATE(radiosity, n_processors);
             WAIT_FOR_END(n_processors);
+            SPLASH3_ROI_END();
 
             /* Time stamp */
             CLOCK( time_rad_end );

@@ -95,8 +95,10 @@ int main(int argc, char *argv[])
 
 /*  if (num_nodes > 1)
     WAIT_FOR_END(num_nodes-1);*/
-  if (num_nodes > 1)
+  if (num_nodes > 1) {
     WAIT_FOR_END(num_nodes);
+  }
+  SPLASH3_ROI_END();
   MAIN_END;
 }
 
@@ -223,6 +225,7 @@ void Frame()
   printf("\nRendering...\n");
   printf("node\tframe\ttime\titime\trays\thrays\tsamples trilirped\n");
 
+  SPLASH3_ROI_BEGIN();
   CREATE(Render_Loop, num_nodes);
 }
 

@@ -404,10 +404,12 @@ int	main(int argc, CHAR *argv[])
 	 *	Now create slave processes.
 	 */
 
-	CLOCK(begin)
+	CLOCK(begin);
+	SPLASH3_ROI_BEGIN();
 	CREATE(StartRayTrace, gm->nprocs);
 	WAIT_FOR_END(gm->nprocs);
-	CLOCK(end)
+	SPLASH3_ROI_END();
+	CLOCK(end);
 
 
 

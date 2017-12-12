@@ -67,7 +67,7 @@ based on the original Splash-2 characterization paper by Woo et al. [1].
 	apps/ocean/non_contiguous_partitions/OCEAN -p# -n258
 	apps/radiosity/RADIOSITY -p # -ae 5000 -bf 0.1 -en 0.05 -room -batch
 	apps/raytrace/RAYTRACE -p# -m64 inputs/car.env
-	apps/volrend/VOLREND # inputs/head
+	apps/volrend/VOLREND # inputs/head 8
 	apps/water-nsquared/WATER-NSQUARED < inputs/n512-p#
 	apps/water-spatial/WATER-SPATIAL < inputs/n512-p# 
 	kernels/cholesky/CHOLESKY -p# < inputs/tk15.O
@@ -75,6 +75,12 @@ based on the original Splash-2 characterization paper by Woo et al. [1].
 	kernels/lu/contiguous_blocks/LU -p# -n512
 	kernels/lu/non_contiguous_blocks/LU -p# -n512
 	kernels/radix/RADIX -p# -n1048576
+
+## Known Issues
+
+* If OCEAN (either version) segfaults during initialization, try reducing the
+  `IMAX` and `JMAX` values in `decs.h`.
+
 
 ## Removing the locks around some of the "benign" races
 
