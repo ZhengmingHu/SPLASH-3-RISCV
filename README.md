@@ -39,6 +39,17 @@ To properly cite Splash-3 please cite our ISPASS'16 paper.
 	in Performance Analysis of Systems and Software (ISPASS), 2016
 	IEEE International Symposium On, IEEE, 2016.
 
+## Building and Running Splash-3
+
+In order to build Splash-3, a relatively modern C compiler with C11 support is
+required. In addition, the M4 macro processor is necessary for generating the
+source files in the first place. On Ubuntu and similar systems, you can install
+the `m4` and `ivtools-dev` packages.
+
+Some benchmarks expect their inputs to be at very specific paths relative to the
+working directory, so it is recommended to change the working directory to the
+benchmark folder before executing it.
+
 ## Different Versions
 
 The first release of Splash-3 is tagged as `v3.0`. Small fixes might be
@@ -61,25 +72,28 @@ The following are the recommended inputs for running Splash-3 in a simulator.
 The symbol '#' is a placeholder for the number of threads. These inputs are
 based on the original Splash-2 characterization paper by Woo et al. [1].
 
-	apps/barnes/BARNES < inputs/n16384-p#
-	apps/fmm/FMM < inputs/input.#.16384
-	apps/ocean/contiguous_partitions/OCEAN -p# -n258
-	apps/ocean/non_contiguous_partitions/OCEAN -p# -n258
-	apps/radiosity/RADIOSITY -p # -ae 5000 -bf 0.1 -en 0.05 -room -batch
-	apps/raytrace/RAYTRACE -p# -m64 inputs/car.env
-	apps/volrend/VOLREND # inputs/head 8
-	apps/water-nsquared/WATER-NSQUARED < inputs/n512-p#
-	apps/water-spatial/WATER-SPATIAL < inputs/n512-p# 
-	kernels/cholesky/CHOLESKY -p# < inputs/tk15.O
-	kernels/fft/FFT -p# -m16
-	kernels/lu/contiguous_blocks/LU -p# -n512
-	kernels/lu/non_contiguous_blocks/LU -p# -n512
-	kernels/radix/RADIX -p# -n1048576
+	APPS:
+	./BARNES < inputs/n16384-p#
+	./FMM < inputs/input.#.16384
+	./OCEAN -p# -n258
+	./RADIOSITY -p # -ae 5000 -bf 0.1 -en 0.05 -room -batch
+	./RAYTRACE -p# -m64 inputs/car.env
+	./VOLREND # inputs/head 8
+	./WATER-NSQUARED < inputs/n512-p#
+	./WATER-SPATIAL < inputs/n512-p#
+	KERNELS:
+	./CHOLESKY -p# < inputs/tk15.O
+	./FFT -p# -m16
+	./LU -p# -n512
+	./RADIX -p# -n1048576
 
 ## Known Issues
 
 * If OCEAN (either version) segfaults during initialization, try reducing the
   `IMAX` and `JMAX` values in `decs.h`.
+* It is recommended to change the working directory to the benchmark's
+  directory.
+
 
 
 ## Removing the locks around some of the "benign" races
