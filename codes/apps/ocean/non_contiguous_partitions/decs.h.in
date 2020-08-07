@@ -16,12 +16,12 @@
 
 #define INPROCS      1024
 #define MAX_LEVELS     14
-#if defined(SPARC_SOLARIS) || defined(__i386__)  //32bit
+#if defined(SPARC_SOLARIS) || defined(__i386__) || defined(__ARM_32BIT_STATE)  //32bit
 #define IMAX         2050
 #define JMAX         2050
-#else
-#define IMAX         8098
-#define JMAX         8098
+#else //64bit
+#define IMAX         8194
+#define JMAX         8194
 #endif
 #define MASTER          0
 #define RED_ITER        0
