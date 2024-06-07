@@ -56,8 +56,11 @@ benchmark folder before executing it.
 
 ## Building and Running Splash-3 on RISC-V Platform
 setup the correct absolute directory for the spec root
+
 `make build` cross compile
+
 `make run` run 
+
 the number of processors used can be modified by changing `nproc` in Makefile
 
 ## Different Versions
