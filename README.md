@@ -54,6 +54,12 @@ Some benchmarks expect their inputs to be at very specific paths relative to the
 working directory, so it is recommended to change the working directory to the
 benchmark folder before executing it.
 
+## Building and Running Splash-3 on RISC-V Platform
+setup the correct absolute directory for the spec root
+`make build` cross compile
+`make run` run 
+the number of processors used can be modified by changing `nproc` in Makefile
+
 ## Different Versions
 
 The first release of Splash-3 is tagged as `v3.0`. Small fixes might be

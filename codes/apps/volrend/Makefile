@@ -22,8 +22,3 @@ incl.h:	user_options.h const.h my_types.h global.h macros.h address.h
 
 libtiff/libtiff.a:
 	make -C libtiff
-
-clean:
-	$(MAKE) -C libtiff clean
-	$(RM) $(OBJS) VOLREND
-
